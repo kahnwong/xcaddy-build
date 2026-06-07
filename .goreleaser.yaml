@@ -1,0 +1,28 @@
+version: 2
+project_name: caddy-custom
+before:
+  hooks:
+    - go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
+builds:
+  - id: caddy-custom
+    main: .
+    binary: caddy
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    hooks:
+      post:
+        - cmd: >-
+            xcaddy build 
+            --output "{{ .Path }}" 
+            --with github.com/caddy-dns/cloudflare 
+            --with github.com/mholt/caddy-l4 
+            --with github.com/caddyserver/transform-encoder 
+            --with github.com/hslatman/caddy-crowdsec-bouncer/http@main 
+            --with github.com/hslatman/caddy-crowdsec-bouncer/appsec@main 
+            --with github.com/hslatman/caddy-crowdsec-bouncer/layer4@main
+          env:
+            - GOOS={{ .Os }}
+            - GOARCH={{ .Arch }}
